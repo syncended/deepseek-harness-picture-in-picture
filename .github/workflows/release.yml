@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write # enables npm provenance (attestation)
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Check package version matches tag
+        run: |
+          node -e '
+            const version = require("./package.json").version;
+            const tag = process.env.GITHUB_REF_NAME;
+            if (tag !== `v${version}`) {
+              throw new Error(`Tag ${tag} does not match package version ${version}`);
+            }
+          '
+
+      - name: Smoke-check
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Verify package contents
+        run: npm pack --dry-run
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_REGISTRY_TOKEN }}
+        run: npm publish --provenance --access public

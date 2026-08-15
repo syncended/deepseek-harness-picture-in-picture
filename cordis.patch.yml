@@ -1,0 +1,7 @@
+# @syncended/dsh-pip bundle patch.
+#
+# This browser-only row is discovered by dsh-client-modules through the
+# package.json `dsh.client` declaration and loaded into the Web surface.
+- insert:
+    - id: picture-in-picture
+      name: "@syncended/dsh-pip"
