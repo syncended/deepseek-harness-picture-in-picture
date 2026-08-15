@@ -62,6 +62,6 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/syncended/deepseek-harness-picture-in-picture-plugin.git"
+    "url": "git+https://github.com/syncended/deepseek-harness-picture-in-picture.git"
   }
 }
