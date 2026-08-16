@@ -8,7 +8,13 @@ A browser plugin for the [DeepSeek Harness](https://github.com/deepseek-ai/deeps
   <img src="./docs/assets/pip-preview.svg" width="420" alt="Synthetic preview of the Harness picture-in-picture chat" />
 </p>
 
-<p align="center"><sub>Synthetic 420 × 660 preview illustrating the compact dark-theme layout.</sub></p>
+<p align="center"><sub>Active conversation with compact tool activity, progress docks, and reply controls.</sub></p>
+
+<p align="center">
+  <img src="./docs/assets/pip-new-chat-preview.svg" width="420" alt="Synthetic preview of an empty new Harness picture-in-picture chat ready for the first message" />
+</p>
+
+<p align="center"><sub>Empty new chat, ready for the first message.</sub></p>
 
 ## Features
 
