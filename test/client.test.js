@@ -54,7 +54,7 @@ async function loadClient() {
 
 test("client bundle registers as a DSH module and installs its style", async () => {
   const { client, styles } = await loadClient();
-  assert.deepEqual(Array.from(client.inject), ["slots", "sessions", "modelDirectories", "locale"]);
+  assert.deepEqual(Array.from(client.inject), ["slots", "sessions", "workspaces", "modelDirectories", "locale"]);
   assert.equal(typeof client.apply, "function");
   assert.equal(styles.length, 1);
   assert.equal(styles[0].dataset.plugin, "@syncended/dsh-pip");
@@ -65,8 +65,55 @@ test("copy follows the explicit Harness locale", async () => {
   assert.equal(client.__testing.copyForLocale("en").title, "Mini chat");
   assert.equal(client.__testing.copyForLocale("zh").title, "迷你聊天");
   assert.equal(client.__testing.copyForLocale("ru").title, "Мини-чат");
+  assert.equal(client.__testing.copyForLocale("ru").newChat, "Новый чат");
   assert.equal(client.__testing.copyForLocale("unknown").title, "Mini chat");
   assert.equal(client.__testing.languageForLocale("zh"), "zh-CN");
+});
+
+test("new chat targets the current or recent workspace", async () => {
+  const { client } = await loadClient();
+  const workspaces = {
+    items: [
+      { workspaceId: "alpha", sessionIds: ["session-a"] },
+      { workspaceId: "beta", sessionIds: [] },
+    ],
+    recentWorkspaceId: "beta",
+  };
+  assert.equal(client.__testing.newSessionWorkspaceId(workspaces, { current: "session-a" }), "alpha");
+  assert.equal(client.__testing.newSessionWorkspaceId(workspaces, { current: undefined }), "beta");
+  assert.equal(client.__testing.newSessionWorkspaceId({ items: [], recentWorkspaceId: undefined }, { current: undefined }), undefined);
+
+  const calls = [];
+  const opened = await client.__testing.openNewSession(
+    {
+      list: { getSnapshot: () => workspaces },
+      connectWorkspace: async (workspaceId) => {
+        calls.push(["connect", workspaceId]);
+        return "new-session";
+      },
+    },
+    {
+      list: { getSnapshot: () => ({ current: "session-a" }) },
+      open: (sessionId) => calls.push(["open", sessionId]),
+    },
+  );
+  assert.equal(opened, true);
+  assert.deepEqual(calls, [["connect", "alpha"], ["open", "new-session"]]);
+});
+
+test("full-access confirmation uses the PiP owner window", async () => {
+  const { client } = await loadClient();
+  let prompt = "";
+  const ownerWindow = {
+    closed: false,
+    confirm(message) {
+      prompt = message;
+      return true;
+    },
+  };
+  const copy = client.__testing.copyForLocale("en");
+  assert.equal(client.__testing.confirmFullAccess(copy, ownerWindow), true);
+  assert.equal(prompt, copy.fullAccessConfirm);
 });
 
 test("running turn status mirrors the native elapsed footer", async () => {
@@ -84,6 +131,7 @@ test("client apply contributes one additive shell overlay", async () => {
   let registration;
   const ctx = {
     sessions: {},
+    workspaces: {},
     modelDirectories: {},
     locale: { getSnapshot: () => ({ active: "en", locales: [], revision: 0 }), subscribe: () => () => {} },
     effect(factory) {
@@ -105,6 +153,7 @@ test("client apply contributes one additive shell overlay", async () => {
   assert.equal(registration.options.name, "shell.overlay");
   assert.equal(registration.options.id, "picture-in-picture");
   assert.equal(typeof registration.component, "function");
+  assert.equal(registration.component().args[1].workspaces, ctx.workspaces);
 });
 
 test("message projection keeps conversational rows compact", async () => {
@@ -247,23 +296,46 @@ test("composer projection helpers format access, models, context, and todos", as
   const { client } = await loadClient();
   assert.equal(client.__testing.displayName("workspace-write"), "Workspace Write");
   assert.equal(client.__testing.contextPercent({ projectedTokens: 32000, contextWindow: 128000 }), 25);
-  assert.deepEqual(
-    JSON.parse(
-      JSON.stringify(
-        client.__testing.modelChoicesOf({
-          groups: [
-            {
-              id: "openai",
-              name: "OpenAI",
-              models: [
-                { id: "gpt", name: "GPT", description: "Fast general model", reasoning: { defaultEffort: "high" } },
+  const modelState = {
+    current: { provider: "openai", model: "gpt", reasoningEffort: "low" },
+    groups: [
+      {
+        id: "openai",
+        name: "OpenAI",
+        models: [
+          {
+            id: "gpt",
+            name: "GPT",
+            description: "Fast general model",
+            reasoning: {
+              defaultEffort: "high",
+              efforts: [
+                { id: "low", name: "Low", description: "Faster" },
+                { id: "high", name: "High", description: "Deeper" },
               ],
             },
-          ],
-        }),
-      ),
-    ),
+          },
+        ],
+      },
+    ],
+  };
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(client.__testing.modelChoicesOf(modelState))),
     [{ key: "openai\u0000gpt", provider: "openai", model: "gpt", label: "GPT", description: "Fast general model", group: "OpenAI", reasoningEffort: "high" }],
+  );
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(client.__testing.reasoningChoicesOf(modelState, "Default"))),
+    {
+      value: "low",
+      options: [
+        { value: "low", label: "Low", description: "Faster" },
+        { value: "high", label: "High", description: "Deeper" },
+      ],
+    },
+  );
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(client.__testing.reasoningSelectionOf(modelState, "high", "Default"))),
+    { provider: "openai", model: "gpt", reasoningEffort: "high" },
   );
   assert.deepEqual(
     Array.from(

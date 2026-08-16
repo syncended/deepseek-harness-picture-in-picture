@@ -28,10 +28,11 @@ A browser plugin for the [DeepSeek Harness](https://github.com/deepseek-ai/deeps
 - Stop generation plus queued-message edit, remove, and **Send now** controls.
 - Inline approval, plan-review, and structured user-question panels.
 - Image attachment previews and image-plus-text submission through the public session API.
-- Access-mode, plan-mode, model, and context controls inside the compact composer.
+- Access-mode, plan-mode, model, model reasoning-effort, and context controls inside the compact composer.
 - Compact context, turns/steps, throughput, cache-hit, and input/output token statistics.
 - Collapsible todo progress and active-goal status above the composer.
 - Human chat switcher grouped by workspace, omitting internal subagent sessions.
+- New-chat action that opens or creates the blank session for the current/recent workspace, including workspaces with no prior messages.
 - Replies are sent through the public `Session.prompt(..., "queue")` API. While an agent is working, a reply is queued for the next turn and can be steered into the active turn with **Send now**.
 - Reactive synchronization with the locale selected in Harness settings (English and Chinese), with Russian fallback copy for compatible hosts; dark-theme synchronization, keyboard, and screen-reader labels.
 - `Enter` sends; `Shift+Enter` inserts a new line.
