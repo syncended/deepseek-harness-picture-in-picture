@@ -131,7 +131,7 @@ test("message projection keeps conversational rows compact", async () => {
         ),
       ),
     ),
-    { role: "assistant", label: "Agent", text: "world", copyText: "world", seq: 7, key: "assistant-7" },
+    { role: "assistant", label: "Agent", text: "world", blocks: [{ kind: "text", text: "world" }], copyText: "world", seq: 7, key: "assistant-7" },
   );
   assert.equal(client.__testing.projectNode({ kind: "tool-result", seq: 8 }, copy), null);
   assert.deepEqual(
@@ -154,6 +154,10 @@ test("message projection keeps conversational rows compact", async () => {
       role: "assistant",
       label: "Agent",
       text: "Thinking\nchecking the workspace\n\nRunning: bash\npwd",
+      blocks: [
+        { kind: "reasoning", text: "checking the workspace" },
+        { kind: "tool-call", callId: "call-1", name: "bash", argsRaw: "pwd" },
+      ],
       copyText: "",
       seq: 9,
       key: "assistant-9",
@@ -175,7 +179,20 @@ test("message projection keeps conversational rows compact", async () => {
         ),
       ),
     ),
-    { role: "log", label: "bash", text: "Completed: bash\n/workspace", key: "tool-10" },
+    {
+      role: "tool",
+      label: "bash",
+      text: "Completed: bash\n/workspace",
+      tool: {
+        kind: "tool-result",
+        seq: 10,
+        callId: "call-1",
+        call: { name: "bash" },
+        content: [{ type: "text", text: "/workspace" }],
+        isError: false,
+      },
+      key: "tool-10",
+    },
   );
 });
 
@@ -188,8 +205,10 @@ test("queued rows keep ids and placement for send-now actions", async () => {
         { id: "queued-1", placement: "queued", text: "send this next", preview: "" },
         { id: "steering-1", placement: "steering", text: null, preview: "already steering" },
       ],
-      runningCalls: [],
-      partial: null,
+      runningCalls: [
+        { callId: "tool-1", name: "read", argsRaw: "{}", callView: { card: "generic", title: "Read file" }, subCalls: [] },
+      ],
+      partial: { blocks: [{ kind: "reasoning", text: "checking" }] },
     },
     { image: "[Image]", thinking: "Thinking", toolRunning: "Running" },
   );
@@ -200,6 +219,9 @@ test("queued rows keep ids and placement for send-now actions", async () => {
       { id: "steering-1", placement: "steering", text: "already steering", editable: false },
     ],
   );
+  assert.equal(rows.runningCalls[0].callView.title, "Read file");
+  assert.deepEqual(Array.from(rows.partialBlocks), [{ kind: "reasoning", text: "checking" }]);
+  assert.equal(rows.partialText, "Thinking\nchecking");
 });
 
 test("composer projection helpers format access, models, context, and todos", async () => {
