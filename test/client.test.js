@@ -69,6 +69,15 @@ test("copy follows the explicit Harness locale", async () => {
   assert.equal(client.__testing.languageForLocale("zh"), "zh-CN");
 });
 
+test("running turn status mirrors the native elapsed footer", async () => {
+  const { client } = await loadClient();
+  const copy = client.__testing.copyForLocale("en");
+  assert.equal(client.__testing.runningTurnStartTime({ turnTimings: new Map([[1, { startTime: 100, endTime: 200 }], [2, { startTime: 300 }]]) }), 300);
+  assert.equal(client.__testing.formatRunDuration(15_900, copy), "15s");
+  assert.equal(client.__testing.formatRunDuration(65_900, copy), "1m 05s");
+  assert.equal(client.__testing.formatRunDuration(65_900, client.__testing.copyForLocale("zh")), "1分05秒");
+});
+
 test("client apply contributes one additive shell overlay", async () => {
   const { client } = await loadClient();
   let injectedName;
