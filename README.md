@@ -16,7 +16,7 @@ A browser plugin for the [DeepSeek Harness](https://github.com/deepseek-ai/deeps
 - Collapsible todo progress and active-goal status above the composer.
 - Human chat switcher grouped by workspace, omitting internal subagent sessions.
 - Replies are sent through the public `Session.prompt(..., "queue")` API. While an agent is working, a reply is queued for the next turn and can be steered into the active turn with **Send now**.
-- English and Russian UI copy, dark-theme synchronization, keyboard and screen-reader labels.
+- Reactive synchronization with the locale selected in Harness settings (English and Chinese), with Russian fallback copy for compatible hosts; dark-theme synchronization, keyboard, and screen-reader labels.
 - `Enter` sends; `Shift+Enter` inserts a new line.
 
 > Switching a chat in the mini window calls `ctx.sessions.open(id)`, so the main Harness window follows the same active chat.

@@ -54,10 +54,19 @@ async function loadClient() {
 
 test("client bundle registers as a DSH module and installs its style", async () => {
   const { client, styles } = await loadClient();
-  assert.deepEqual(Array.from(client.inject), ["slots", "sessions", "modelDirectories"]);
+  assert.deepEqual(Array.from(client.inject), ["slots", "sessions", "modelDirectories", "locale"]);
   assert.equal(typeof client.apply, "function");
   assert.equal(styles.length, 1);
   assert.equal(styles[0].dataset.plugin, "@syncended/dsh-pip");
+});
+
+test("copy follows the explicit Harness locale", async () => {
+  const { client } = await loadClient();
+  assert.equal(client.__testing.copyForLocale("en").title, "Mini chat");
+  assert.equal(client.__testing.copyForLocale("zh").title, "迷你聊天");
+  assert.equal(client.__testing.copyForLocale("ru").title, "Мини-чат");
+  assert.equal(client.__testing.copyForLocale("unknown").title, "Mini chat");
+  assert.equal(client.__testing.languageForLocale("zh"), "zh-CN");
 });
 
 test("client apply contributes one additive shell overlay", async () => {
@@ -67,6 +76,7 @@ test("client apply contributes one additive shell overlay", async () => {
   const ctx = {
     sessions: {},
     modelDirectories: {},
+    locale: { getSnapshot: () => ({ active: "en", locales: [], revision: 0 }), subscribe: () => () => {} },
     effect(factory) {
       return factory();
     },
