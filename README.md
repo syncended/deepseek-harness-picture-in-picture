@@ -7,8 +7,15 @@ A browser plugin for the [DeepSeek Harness](https://github.com/deepseek-ai/deeps
 - **Native Document Picture-in-Picture** on supported Chromium browsers.
 - **In-page floating fallback** when the Document Picture-in-Picture API is unavailable or denied.
 - Session switcher with live **working / waiting / completed** state.
-- Compact user and assistant transcript with streaming assistant output.
-- Replies are sent through the public `Session.prompt(..., "queue")` API. While an agent is working, a reply is queued for the next turn.
+- Compact Markdown transcript with streaming reasoning, tool activity, results, historical images, copy, branch, and older-history loading.
+- Stop generation plus queued-message edit, remove, and **Send now** controls.
+- Inline approval, plan-review, and structured user-question panels.
+- Image attachment previews and image-plus-text submission through the public session API.
+- Access-mode, plan-mode, model, and context controls inside the compact composer.
+- Compact context, turns/steps, throughput, cache-hit, and input/output token statistics.
+- Collapsible todo progress and active-goal status above the composer.
+- Human chat switcher grouped by workspace, omitting internal subagent sessions.
+- Replies are sent through the public `Session.prompt(..., "queue")` API. While an agent is working, a reply is queued for the next turn and can be steered into the active turn with **Send now**.
 - English and Russian UI copy, dark-theme synchronization, keyboard and screen-reader labels.
 - `Enter` sends; `Shift+Enter` inserts a new line.
 
@@ -70,10 +77,12 @@ The implementation uses only supported DSH client seams:
 - `ctx.slots.inject("shell.overlay", ...)` for a lifecycle-safe floating UI contribution.
 - `ctx.sessions.list` for the session list and current selection.
 - `ctx.sessions.open(id)` to switch the active session.
-- `ctx.sessions.binding(id).session` for the conversation observable and `prompt` behavior.
+- `ctx.sessions.binding(id).session` for conversation snapshots, projections, prompt/cancel/queue/history actions, and durable image reads.
+- Pending interaction carriers from `ConversationSnapshot.pending` for approvals and structured questions.
+- Public `MarkdownText` and `writeClipboard` primitives for safe transcript rendering and copy actions.
 - `react-dom#createPortal` to render the same React mini-chat tree into the Document PiP window.
 
-The PiP view intentionally renders conversational text and status notices rather than cloning the full Harness conversation component. Tool cards, attachments, structured approvals, plan review, and `ask_user_question` controls remain in the main UI; the mini-chat shows that input is needed and provides a button to focus the main window.
+The PiP view uses a compact presentation rather than cloning the full Harness conversation component. It renders tool activity as concise logs and provides compact attachments, approvals, plan review, and `ask_user_question` controls; the main window remains available for full-size inspection.
 
 ## Current limitations
 
