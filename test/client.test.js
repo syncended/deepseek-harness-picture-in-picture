@@ -213,15 +213,16 @@ test("composer projection helpers format access, models, context, and todos", as
           groups: [
             {
               id: "openai",
+              name: "OpenAI",
               models: [
-                { id: "gpt", name: "GPT", reasoning: { defaultEffort: "high" } },
+                { id: "gpt", name: "GPT", description: "Fast general model", reasoning: { defaultEffort: "high" } },
               ],
             },
           ],
         }),
       ),
     ),
-    [{ key: "openai\u0000gpt", provider: "openai", model: "gpt", label: "GPT", reasoningEffort: "high" }],
+    [{ key: "openai\u0000gpt", provider: "openai", model: "gpt", label: "GPT", description: "Fast general model", group: "OpenAI", reasoningEffort: "high" }],
   );
   assert.deepEqual(
     Array.from(
