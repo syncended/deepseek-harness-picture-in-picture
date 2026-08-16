@@ -2,6 +2,14 @@
 
 A browser plugin for the [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) Web GUI. It adds a compact chat that can stay above other windows, switch the active Harness session, follow streaming replies, and send a reply without returning to the full page.
 
+## Preview
+
+<p align="center">
+  <img src="./docs/assets/pip-preview.svg" width="420" alt="Synthetic preview of the Harness picture-in-picture chat" />
+</p>
+
+<p align="center"><sub>Synthetic 420 × 660 preview illustrating the compact dark-theme layout.</sub></p>
+
 ## Features
 
 - **Native Document Picture-in-Picture** on supported Chromium browsers.
@@ -86,10 +94,9 @@ The PiP view uses a compact presentation rather than cloning the full Harness co
 
 ## Current limitations
 
-- Document Picture-in-Picture is Chromium-only at the time of writing.
-- Replies use queue mode; steering/interruption controls are intentionally not exposed in the first version.
-- Structured pending interactions must be completed in the main Harness window.
-- The mini transcript displays the latest 18 conversational rows and omits tool-result cards.
+- Document Picture-in-Picture is Chromium-only at the time of writing; other browsers use the in-page fallback.
+- The operating system and browser own the native PiP window frame, outer corner shape, and final placement.
+- Generic tool rows are intentionally compact; the main Harness window remains the best surface for deeply inspecting large tool payloads.
 
 ## License
 

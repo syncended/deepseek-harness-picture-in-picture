@@ -17,6 +17,7 @@
     "cordis.patch.yml",
     "README.md",
     "docs/RESEARCH.md",
+    "docs/assets/pip-preview.svg",
     "LICENSE"
   ],
   "publishConfig": {
