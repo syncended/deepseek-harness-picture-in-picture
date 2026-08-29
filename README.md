@@ -4,20 +4,11 @@ A browser plugin for the [DeepSeek Harness](https://github.com/deepseek-ai/deeps
 
 ## Preview
 
-<table>
-  <tr>
-    <td align="center" valign="top">
-      <img src="./docs/assets/pip-new-chat-preview.svg" width="420" alt="Synthetic preview of an empty new Harness picture-in-picture chat ready for the first message" />
-      <br />
-      <sub>Empty new chat, ready for the first message.</sub>
-    </td>
-    <td align="center" valign="top">
-      <img src="./docs/assets/pip-preview.svg" width="420" alt="Synthetic preview of the Harness picture-in-picture chat" />
-      <br />
-      <sub>Active conversation with compact tool activity, progress docks, and reply controls.</sub>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <img src="./docs/assets/pip-chat.png" width="420" alt="Native dark-theme DeepSeek Harness picture-in-picture chat window" />
+</p>
+
+<p align="center"><sub>Real 420 × 660 Document Picture-in-Picture window captured from the plugin.</sub></p>
 
 ## Features
 
@@ -43,11 +34,12 @@ A browser plugin for the [DeepSeek Harness](https://github.com/deepseek-ai/deeps
 
 - DeepSeek Harness `0.1.0-rc.6` or a compatible release with client plugins and the `shell.overlay` slot.
 - The Web profile (`dsh web`).
+- Node.js 18 or newer.
 - For native always-on-top PiP: a Chromium browser supporting the [Document Picture-in-Picture API](https://developer.mozilla.org/en-US/docs/Web/API/Document_Picture-in-Picture_API). Other browsers use the in-page panel.
 
 ## Install
 
-From npm after publication:
+Install from npm:
 
 ```bash
 dsh plugin --profile web add @syncended/dsh-pip
@@ -56,16 +48,18 @@ dsh plugin --profile web add @syncended/dsh-pip
 From this checkout during development:
 
 ```bash
-dsh plugin --profile web add /absolute/path/to/deepseek-harness-picture-in-picture-plugin
+dsh plugin --profile web add /absolute/path/to/deepseek-harness-picture-in-picture
 ```
 
 Some pnpm-backed profiles require the workspace-root flag:
 
 ```bash
-dsh plugin --profile web add -w /absolute/path/to/deepseek-harness-picture-in-picture-plugin
+dsh plugin --profile web add -w /absolute/path/to/deepseek-harness-picture-in-picture
 ```
 
-Restart `dsh web` after first installation. A chat-bubble button then appears in the bottom-right corner of the Web GUI.
+The package declares a DSH bundle, so no manual plugin entry is required. Restart `dsh web` after installing or upgrading and refresh the existing GUI. A chat-bubble button then appears in the bottom-right corner.
+
+No environment variables, remote URL, or separate server connection are required; the plugin uses the Host and profile serving the current Web GUI.
 
 ## Development
 
@@ -87,8 +81,6 @@ The package has two faces:
 `package.json#dsh.client` orders the client after runtime, layout, and conversation assembly. `cordis.patch.yml` inserts the package into the active profile.
 
 ## Architecture notes
-
-The full API investigation and design rationale are recorded in [`docs/RESEARCH.md`](./docs/RESEARCH.md).
 
 The implementation uses only supported DSH client seams:
 

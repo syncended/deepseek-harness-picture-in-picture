@@ -16,9 +16,7 @@
     "lib/client.js",
     "cordis.patch.yml",
     "README.md",
-    "docs/RESEARCH.md",
-    "docs/assets/pip-preview.svg",
-    "docs/assets/pip-new-chat-preview.svg",
+    "docs/assets/pip-chat.png",
     "LICENSE"
   ],
   "publishConfig": {

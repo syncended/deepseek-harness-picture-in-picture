@@ -1,51 +1,42 @@
 # Releasing
 
-Releases follow the same tag-driven npm publication flow as `@syncended/dsh-codex`.
+Releases use tag-driven npm publication with provenance.
 
 ## One-time setup
 
-1. **Register on npm** — https://www.npmjs.com/signup
-2. **Create a Granular Access Token that bypasses 2FA** — https://www.npmjs.com/settings/<user>/tokens → Generate New Token → **Granular Access Token**:
-   - Permissions: **Packages and scopes** → **Read and write**, for scope `@syncended` or package `@syncended/dsh-pip`.
-   - **Two-factor authentication: Bypass two-factor authentication** — required for token-based CI publication when the account has 2FA enabled.
-   - A classic **Automation** token also works, but granular + bypass is preferred.
-3. **Add the token to GitHub Actions secrets** — repository → Settings → Secrets and variables → Actions → New repository secret:
-   - Name: `NPM_REGISTRY_TOKEN`
-   - Value: the npm token from step 2.
+1. Create an npm granular access token for `@syncended/dsh-pip` with package read/write access and CI-compatible 2FA bypass.
+2. Store it in the GitHub Actions repository secret `NPM_REGISTRY_TOKEN`.
+3. Confirm the release workflow has npm provenance permissions.
+
+Manage tokens at <https://www.npmjs.com/settings/syncended/tokens>.
 
 ## Every release
 
-Start from a clean branch with all checks passing:
+Start from a clean branch and run the same checks CI will run:
 
 ```bash
+npm run check
 npm test
-npm run build
 npm pack --dry-run
 ```
 
-Then bump, commit, tag, and push:
+Then create and push a version commit and matching `v<version>` tag:
 
 ```bash
-npm version patch   # or minor, major, or an explicit version such as 0.1.1
+npm version patch   # or minor, major, or an explicit version
 git push --follow-tags
 ```
 
-`npm version` creates a `v<version>` Git tag. The `.github/workflows/release.yml` workflow verifies that the tag matches `package.json`, runs build/tests/package checks, then publishes with npm provenance.
+The release workflow verifies that the tag matches `package.json`, reruns checks, inspects the package contents, and publishes with npm provenance.
 
-Package page:
+Package page: <https://www.npmjs.com/package/@syncended/dsh-pip>
 
-https://www.npmjs.com/package/@syncended/dsh-pip
-
-After publication, users install with:
+Verify installation in a disposable Web profile:
 
 ```bash
 dsh plugin --profile web add @syncended/dsh-pip
+# Use -w if the pnpm-backed profile requires workspace-root installation.
+dsh web --no-open
 ```
 
-Some pnpm-backed profiles require `-w`:
-
-```bash
-dsh plugin --profile web add -w @syncended/dsh-pip
-```
-
-Restart `dsh --profile web` after installation.
+Refresh the existing Web GUI and confirm the picture-in-picture launcher appears.
