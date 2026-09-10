@@ -1,6 +1,6 @@
 {
   "name": "@syncended/dsh-pip",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Picture-in-picture mini chat for the DeepSeek Harness Web GUI.",
   "license": "MIT",
   "type": "module",

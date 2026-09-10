@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import vm from "node:vm";
 
-async function loadClient() {
+async function loadClient(reactOverrides = {}) {
   let definition;
   const styles = [];
   const document = {
@@ -40,6 +40,7 @@ async function loadClient() {
     useEffect() {},
     useRef: () => ({ current: null }),
     useState: (value) => [value, () => {}],
+    ...reactOverrides,
   };
   const client = definition.factory((id) => {
     if (id === "react") return React;
@@ -59,6 +60,38 @@ test("client bundle registers as a DSH module and installs its style", async () 
   assert.equal(styles.length, 1);
   assert.equal(styles[0].dataset.plugin, "@syncended/dsh-pip");
 });
+
+for (const hook of ["useSessionsList", "useWorkspacesList"]) {
+  test(`${hook} preserves the store receiver for snapshots and subscriptions`, async () => {
+    const snapshot = { ids: [], items: [] };
+    let subscribed = false;
+    let unsubscribed = false;
+    const listener = () => {};
+    const store = {
+      getSnapshot() {
+        assert.equal(this, store);
+        return snapshot;
+      },
+      subscribe(callback) {
+        assert.equal(this, store);
+        assert.equal(callback, listener);
+        subscribed = true;
+        return () => { unsubscribed = true; };
+      },
+    };
+    const { client } = await loadClient({
+      useSyncExternalStore(subscribe, getSnapshot) {
+        const value = getSnapshot();
+        const dispose = subscribe(listener);
+        dispose();
+        return value;
+      },
+    });
+    assert.equal(client.__testing[hook]({ list: store }), snapshot);
+    assert.equal(subscribed, true);
+    assert.equal(unsubscribed, true);
+  });
+}
 
 test("copy follows the explicit Harness locale", async () => {
   const { client } = await loadClient();
